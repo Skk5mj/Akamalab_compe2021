@@ -5,18 +5,17 @@ from torch.utils import data
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.metrics import roc_auc_score
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-loss_fn = nn.CrossEntropyLoss()
 
 def train_valid_loop(
-    train_loader, valid_loader, model,
-    n_epoch, learning_rate, device):
+    train_loader, valid_loader, valid_data_tensor, valid_label_tensor, model,
+    n_epoch, optimizer, loss_function):
     train_acc_list = []
     train_loss_list = []
     valid_acc_list = []
     valid_loss_list = []
-    optimizer = optim.SGD(model.parameters(), lr = learning_rate,
-        momentum = 0.9, weight_decay = 5e-3)
+    
     for epoch in range(n_epoch):
         train_loss = 0
         train_acc = 0
@@ -62,6 +61,12 @@ def train_valid_loop(
             train_loss_list.append(avg_train_loss)
             valid_acc_list.append(avg_valid_acc)
             valid_loss_list.append(avg_valid_loss)
-    return train_acc_list, train_loss_list, valid_acc_list, valid_loss_list
+        # 出来たモデルでauc scoreを計算
+        _,prediction = torch.max(
+            model.forward(valid_data_tensor.to(device)),dim=1)#fold全体の予測値
+        # tensor配列からnumpy配列に戻すときはdetach()を挟む必要アリ
+        auc_score = roc_auc_score(valid_label_tensor.detach().numpy().copy(),prediction.to('cpu').detach().numpy().copy())
+
+    return train_acc_list, train_loss_list, valid_acc_list, valid_loss_list, auc_score
 
 # optimizerとかlossをこのpyファイル上で定義せずに動かしたいけどどうやったらよいのか
