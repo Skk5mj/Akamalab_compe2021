@@ -15,7 +15,7 @@ def train_valid_loop(
     train_loss_list = []
     valid_acc_list = []
     valid_loss_list = []
-    
+    auc_score_list = []
 
     for epoch in range(n_epoch):
         train_loss = 0
@@ -67,5 +67,5 @@ def train_valid_loop(
             model.forward(valid_data_tensor.to(device)),dim=1)#fold全体の予測値
         # tensor配列からnumpy配列に戻すときはdetach()を挟む必要アリ
         auc_score = roc_auc_score(valid_label_tensor.detach().numpy().copy(),prediction.to('cpu').detach().numpy().copy())
-
-    return train_acc_list, train_loss_list, valid_acc_list, valid_loss_list, auc_score
+        auc_score_list.append(auc_score)
+    return train_acc_list, train_loss_list, valid_acc_list, valid_loss_list, auc_score_list
