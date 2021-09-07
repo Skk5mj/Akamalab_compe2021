@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 def df2tensor(x_train,y_train, x_val, y_val, batch_size):
     train_data_tensor = torch.tensor(np.array(x_train.astype('f')))
     train_label_tensor = torch.tensor(y_train)
@@ -16,7 +17,7 @@ def df2tensor(x_train,y_train, x_val, y_val, batch_size):
     valid_tensor = data.TensorDataset(valid_data_tensor, valid_label_tensor)
     validloader = data.DataLoader(valid_tensor, batch_size = batch_size)
 
-    return trainloader, validloader
+    return trainloader, validloader, valid_data_tensor, valid_label_tensor
 
 
 
