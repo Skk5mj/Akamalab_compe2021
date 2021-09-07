@@ -7,15 +7,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_auc_score
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+loss_fn = nn.CrossEntropyLoss()
 def train_valid_loop(
     train_loader, valid_loader, valid_data_tensor, valid_label_tensor, model,
-    n_epoch, optimizer, loss_function):
+    n_epoch, optimizer):
     train_acc_list = []
     train_loss_list = []
     valid_acc_list = []
     valid_loss_list = []
     
+
     for epoch in range(n_epoch):
         train_loss = 0
         train_acc = 0
@@ -68,5 +69,3 @@ def train_valid_loop(
         auc_score = roc_auc_score(valid_label_tensor.detach().numpy().copy(),prediction.to('cpu').detach().numpy().copy())
 
     return train_acc_list, train_loss_list, valid_acc_list, valid_loss_list, auc_score
-
-# optimizerとかlossをこのpyファイル上で定義せずに動かしたいけどどうやったらよいのか
